@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="row justify-content-center mb-4">
+    <div class="col-md-6">
+        <div class="card p-4 text-center">
+
+            {% if current_user.avatar %}
+                <img src="{{ url_for('static', filename='uploads/' + current_user.avatar) }}"
+                     style="width: 100px; height: 100px; border-radius: 50%;
+                            object-fit: cover; margin: 0 auto 16px;">
+            {% else %}
+                <div style="width: 100px; height: 100px; border-radius: 50%;
+                            background-color: #4f46e5; display: flex; align-items: center;
+                            justify-content: center; font-size: 2.5rem; margin: 0 auto 16px;">
+                    👤
+                </div>
+            {% endif %}
+
+            <h4 style="color: #22d3ee;">{{ current_user.username }}</h4>
+            <p style="color: #a5b4fc;">{{ current_user.email }}</p>
+            <p style="color: #a5b4fc;">{{ t("published_posts") }}: {{ posts|length }}</p>
+
+            <div class="d-flex justify-content-center gap-2 mt-2">
+
+            <a href="{{ url_for('edit_profile') }}" class="btn btn-primary">
+                ✏️ {{ t("edit_profile") }}
+            </a>
+
+            {% if current_user.is_admin %}
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-danger">
+                🛠️ Admin Panel
+            </a>
+            {% endif %}
+
+        </div>
+        </div>
+    </div>
+</div>
+
+
+<h4 class="mb-3" style="color: #22d3ee;">{{ t("my_posts") }}</h4>
+
+{% if posts %}
+    {% for post in posts %}
+    <div class="card mb-3">
+        {% if post.image_filename %}
+            <img src="{{ url_for('static', filename='uploads/' + post.image_filename) }}"
+                 class="card-img-top" style="height: 180px; object-fit: cover;
+                 {% if post.is_nsfw %}filter: blur(20px);{% endif %}">
+        {% elif post.image_url %}
+            <img src="{{ post.image_url }}"
+                 class="card-img-top" style="height: 180px; object-fit: cover;
+                 {% if post.is_nsfw %}filter: blur(20px);{% endif %}">
+        {% endif %}
+        <div class="card-body">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <h5 class="card-title mb-0">
+                    <a href="{{ url_for('post_detail', id=post.id) }}"
+                       style="color: #22d3ee; text-decoration: none;">
+                        {{ post.title }}
+                    </a>
+                </h5>
+                <span class="badge" style="background-color: #4f46e5;">{{ post.category }}</span>
+            </div>
+            <small style="color: #a5b4fc;">{{ post.created_at.strftime('%Y-%m-%d') }}</small>
+            <div class="mt-2">
+                <a href="{{ url_for('edit_post', id=post.id) }}" class="btn btn-sm btn-warning">{{ t("edit") }}</a>
+                <a href="{{ url_for('delete_post', id=post.id) }}" class="btn btn-sm btn-danger">{{ t("delete") }}</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="card">
+        <div class="card-body text-center">
+            <p style="color: #a5b4fc;">{{ t("no_published_posts") }}</p>
+            <a href="{{ url_for('add_post') }}" class="btn btn-primary">+ {{ t("add_post") }}</a>
+        </div>
+    </div>
+{% endif %}
+
+{% endblock %}

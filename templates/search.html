@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2 class="mb-4" style="color: #22d3ee;">
+    {% if query %}
+        "{{ query }}" — {{ t('search_results_for') }}
+    {% else %}
+        {{ t('search_title') }}
+    {% endif %}
+</h2>
+
+{% if query %}
+    {% if posts %}
+        <p style="color: #a5b4fc;">{{ t('found_posts') }}: {{ posts|length }}</p>
+
+        {% for post in posts %}
+        <div class="card mb-3">
+
+            {% if post.image_filename or post.image_url %}
+                {% set img_src = url_for('static', filename='uploads/' + post.image_filename) if post.image_filename else post.image_url %}
+                {% if post.is_nsfw %}
+                    <div style="position: relative; overflow: hidden;">
+                        <img src="{{ img_src }}" class="card-img-top"
+                             style="height: 220px; object-fit: cover; filter: blur(20px);">
+                        <div style="position: absolute; top: 50%; left: 50%;
+                                    transform: translate(-50%, -50%);
+                                    background: rgba(0,0,0,0.7); padding: 8px 16px;
+                                    border-radius: 8px; color: white; font-weight: bold;">
+                            🔞 {{ t('nsfw_18_plus') }}
+                        </div>
+                    </div>
+                {% else %}
+                    <img src="{{ img_src }}" class="card-img-top"
+                         style="height: 220px; object-fit: cover;">
+                {% endif %}
+            {% endif %}
+
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <h5 class="card-title mb-0">
+                        <a href="{{ url_for('post_detail', id=post.id) }}"
+                           style="color: #22d3ee; text-decoration: none;">
+                            {{ post.title }}
+                        </a>
+                    </h5>
+                    <span class="badge" style="background-color: #4f46e5;">{{ tc(post.category) }}</span>
+                </div>
+                <p class="card-text">
+                    {{ post.content[:200] }}{% if post.content|length > 200 %}...{% endif %}
+                </p>
+                <small style="color: #a5b4fc;">
+                    {{ t('author') }}: {{ post.author.username }} |
+                    {{ post.created_at.strftime('%Y-%m-%d') }}
+                </small>
+            </div>
+        </div>
+        {% endfor %}
+
+    {% else %}
+        <div class="card">
+            <div class="card-body text-center">
+                <h5>{{ t('no_results') }}</h5>
+                <p style="color: #a5b4fc;">"{{ query }}" — {{ t('no_results_text') }}</p>
+                <a href="{{ url_for('index') }}" class="btn btn-primary">{{ t('back_home') }}</a>
+            </div>
+        </div>
+    {% endif %}
+
+{% endif %}
+
+{% endblock %}

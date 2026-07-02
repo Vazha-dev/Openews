@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="card mb-3">
+
+    {% if post.image_filename or post.image_url %}
+        {% set img_src = url_for('static', filename='uploads/' + post.image_filename) if post.image_filename else post.image_url %}
+        {% if post.is_nsfw %}
+            {% if current_user.is_authenticated and current_user.is_adult %}
+                <div style="position: relative; overflow: hidden; cursor: pointer;"
+                     onclick="
+                         document.getElementById('nsfw-img').style.filter = 'none';
+                         document.getElementById('nsfw-text').style.display = 'none';
+                     ">
+                    <img id="nsfw-img" src="{{ img_src }}" class="card-img-top"
+                         style="max-height: 400px; object-fit: cover; filter: blur(20px);">
+                    <div id="nsfw-text"
+                         style="position: absolute; top: 50%; left: 50%;
+                                transform: translate(-50%, -50%);
+                                background: rgba(0,0,0,0.7); padding: 12px 24px;
+                                border-radius: 8px; color: white; font-weight: bold;
+                                font-size: 1.2rem; white-space: nowrap;">
+                        ⚠️ NSFW — 18+ {{ t("content") }}
+                    </div>
+                </div>
+            {% else %}
+                <div style="position: relative; overflow: hidden;">
+                    <img src="{{ img_src }}" class="card-img-top"
+                         style="max-height: 400px; object-fit: cover; filter: blur(20px);">
+                    <div style="position: absolute; top: 50%; left: 50%;
+                                transform: translate(-50%, -50%);
+                                background: rgba(0,0,0,0.7); padding: 12px 24px;
+                                border-radius: 8px; color: white; font-weight: bold;
+                                font-size: 1.2rem; text-align: center;">
+                        🔞 18+ {{ t("content") }}<br>
+                        <small style="font-size: 0.85rem;">
+                            {% if not current_user.is_authenticated %}
+                                to see <a href="{{ url_for('login') }}" style="color: #22d3ee;">{{ t("enter") }}</a>
+                            {% else %}
+                                to see, you must be an adult user. Please update your profile.
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+            {% endif %}
+        {% else %}
+            <img src="{{ img_src }}" class="card-img-top" style="max-height: 400px; object-fit: cover;">
+        {% endif %}
+    {% endif %}
+
+    <div class="card-body">
+
+        <h3 class="card-title" style="color: #22d3ee;">{{ t(post.title) }}</h3>
+        <span class="badge mb-3" style="background-color: #4f46e5;">{{ tc(post.category) }}</span>
+        <p class="card-text">{{ t(post.content) }}</p>
+        <small style="color: #a5b4fc;">
+            {{ t("author") }}: {{ post.author.username }} |
+            {{ post.created_at.strftime('%Y-%m-%d') }}
+            👁️ {{ post.views }} {{ t("views") }}
+        </small>
+
+        <!-- რეაქციები -->
+        <div class="mt-4">
+            <h6 style="color: #a5b4fc;">{{ t("reactions") }}:</h6>
+
+            {% set reactions = ['❤️', '😂', '😮', '😢', '😡', '👍'] %}
+            {% set user_reaction = namespace(value='') %}
+            {% if current_user.is_authenticated %}
+                {% for like in post.likes %}
+                    {% if like.user_id == current_user.id %}
+                        {% set user_reaction.value = like.reaction %}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+
+            <div class="d-flex flex-wrap gap-2">
+                {% for emoji in reactions %}
+                    {% set count = post.likes | selectattr('reaction', 'equalto', emoji) | list | length %}
+                    {% if current_user.is_authenticated %}
+                        <form action="{{ url_for('like_post', id=post.id) }}" method="POST" style="display: inline;">
+                            <input type="hidden" name="reaction" value="{{ emoji }}">
+                            <button type="submit"
+                                    class="btn btn-sm {% if user_reaction.value == emoji %}btn-primary{% else %}btn-outline-secondary{% endif %}"
+                                    style="font-size: 1.2rem; padding: 4px 12px;">
+                                {{ emoji }}{% if count > 0 %} <span style="font-size: 0.8rem;">{{ count }}</span>{% endif %}
+                            </button>
+                        </form>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-sm btn-outline-secondary"
+                           style="font-size: 1.2rem; padding: 4px 12px;">
+                            {{ emoji }}{% if count > 0 %} <span style="font-size: 0.8rem;">{{ count }}</span>{% endif %}
+                        </a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <small class="mt-2 d-block" style="color: #6b7280;">
+                {{ t("total") }}: {{ post.likes|length }} {{ t("reactions") }} • 💬 {{ post.comments|length }} {{ t("comments") }} • 👁️ {{ post.views }} {{ t("views") }}
+            </small>
+        </div>
+
+        <!-- ღილაკები -->
+        <div class="mt-3">
+            {% if current_user.is_authenticated and current_user.id == post.author_id %}
+                <a href="{{ url_for('edit_post', id=post.id) }}" class="btn btn-sm btn-warning">{{ t("edit") }}</a>
+                <a href="{{ url_for('delete_post', id=post.id) }}" class="btn btn-sm btn-danger">{{ t("delete") }}</a>
+            {% endif %}
+            <a href="{{ url_for('index') }}" class="btn btn-sm btn-secondary">← {{ t("back_home") }}</a>
+        </div>
+
+    </div>
+</div>
+
+{% if post.youtube_url %}
+<div class="mt-4">
+    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px;">
+        <iframe src="{{ post.youtube_url }}"
+                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+                frameborder="0"
+                allowfullscreen>
+        </iframe>
+    </div>
+</div>
+{% endif %}
+
+<!-- კომენტარების სექცია -->
+<div class="card mt-4">
+    <div class="card-body">
+        <h5 style="color: #22d3ee;">💬 {{ t("comments") }} ({{ post.comments|length }})</h5>
+        <hr style="border-color: #2d2d5e;">
+
+        {% if post.comments %}
+            {% for comment in post.comments %}
+                {% if not comment.parent_id %}
+                <div class="mb-3 p-3" style="background: #0d0d1a; border-radius: 8px; border-left: 3px solid #4f46e5;">
+                    <div class="d-flex justify-content-between">
+                        <strong style="color: #a5b4fc;">👤 {{ comment.author.username }}</strong>
+                        <small style="color: #6b7280;">{{ comment.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                    </div>
+                    <p class="mt-2 mb-2">{{ comment.content }}</p>
+
+                    <!-- Reply ღილაკი -->
+                    {% if current_user.is_authenticated %}
+                    <button class="btn btn-sm btn-outline-secondary"
+                            onclick="document.getElementById('reply-form-{{ comment.id }}').style.display='block'">
+                        💬 Reply
+                    </button>
+
+                    <!-- Reply ფორმა -->
+                    <div id="reply-form-{{ comment.id }}" style="display: none; margin-top: 10px;">
+                        <form action="{{ url_for('add_comment', id=post.id) }}" method="POST">
+                            <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                            <textarea name="content" rows="2"
+                                    class="form-control bg-dark text-light border-secondary mb-2"
+                                    placeholder="Reply..." required></textarea>
+                            <button type="submit" class="btn btn-sm btn-primary">{{ t("send") }}</button>
+                            <button type="button" class="btn btn-sm btn-secondary"
+                                    onclick="document.getElementById('reply-form-{{ comment.id }}').style.display='none'">
+                                {{ t("cancel") }}
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+
+                    <!-- Reply-ები -->
+                    {% if comment.replies %}
+                    <div class="mt-3" style="border-left: 2px solid #4f46e5; padding-left: 16px; margin-left: 16px;">
+                        {% for reply in comment.replies %}
+                        <div class="mb-2 p-2" style="background: #1a1a2e; border-radius: 6px;">
+                            <div class="d-flex justify-content-between">
+                                <strong style="color: #a5b4fc; font-size: 0.9rem;">👤 {{ reply.author.username }}</strong>
+                                <small style="color: #6b7280;">{{ reply.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                            </div>
+                            <p class="mt-1 mb-0" style="font-size: 0.9rem;">{{ reply.content }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                </div>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <p style="color: #6b7280;">{{ t("no_comments") }}</p>
+        {% endif %}
+
+        {% if current_user.is_authenticated %}
+            <hr style="border-color: #2d2d5e;">
+            <form action="{{ url_for('add_comment', id=post.id) }}" method="POST">
+                <div class="mb-3">
+                    <label class="form-label">{{ t("add_comment") }}</label>
+                    <textarea name="content" rows="3"
+                              class="form-control bg-dark text-light border-secondary"
+                              placeholder="{{ t("write_comment") }}" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">{{ t("add_comment") }}</button>
+            </form>
+        {% else %}
+            <p style="color: #a5b4fc;">
+                {{ t("no_account_comment") }}
+                <a href="{{ url_for('login') }}" style="color: #22d3ee;">{{ t("login") }}</a>
+            </p>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

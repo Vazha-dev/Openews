@@ -1,0 +1,66 @@
+<footer style="background: linear-gradient(90deg, #1a1a3e, #2d1b69);
+               border-top: 1px solid #4f46e5;
+               margin-top: 60px; padding: 40px 0 20px;">
+    <div class="container">
+        <div class="row">
+
+            <!-- ლოგო და სლოგანი -->
+            <div class="col-md-4 mb-4">
+                <h5 style="color: #22d3ee; font-weight: bold; font-size: 1.3rem;">
+                    📰 OpenNews
+                </h5>
+                <p style="color: #a5b4fc; font-size: 0.9rem;">
+                    {{ t('every voice, one place') }}
+                </p>
+            </div>
+
+            <!-- ნავიგაცია -->
+            <div class="col-md-4 mb-4">
+                <h6 style="color: #e0e0ff; margin-bottom: 12px;">{{ t('navigation') }}</h6>
+                <ul class="list-unstyled">
+                    <li><a href="{{ url_for('index') }}"
+                           style="color: #a5b4fc; text-decoration: none;">🏠 {{ t('home') }}</a></li>
+                    <li><a href="{{ url_for('index', category='სპორტი') }}"
+                           style="color: #a5b4fc; text-decoration: none;">⚽ {{ t('sports') }}</a></li>
+                    <li><a href="{{ url_for('index', category='ტექნოლოგია') }}"
+                           style="color: #a5b4fc; text-decoration: none;">💻 {{ t('technology') }}</a></li>
+                    <li><a href="{{ url_for('index', category='გართობა') }}"
+                           style="color: #a5b4fc; text-decoration: none;">🎬 {{ t('entertainment') }}</a></li>
+                    <li><a href="{{ url_for('index', category='ბიზნესი') }}"
+                           style="color: #a5b4fc; text-decoration: none;">💼 {{ t('business') }}</a></li>
+                    <li><a href="{{ url_for('index', category='ჯანმრთელობა') }}"
+                           style="color: #a5b4fc; text-decoration: none;">🏥 {{ t('health') }}</a></li>
+                </ul>
+            </div>
+
+            <!-- ანგარიში -->
+            <div class="col-md-4 mb-4">
+                <h6 style="color: #e0e0ff; margin-bottom: 12px;">{{ t('account') }}</h6>
+                <ul class="list-unstyled">
+                    {% if current_user.is_authenticated %}
+                        <li><a href="{{ url_for('profile') }}"
+                               style="color: #a5b4fc; text-decoration: none;">👤 {{ t('profile') }}</a></li>
+                        <li><a href="{{ url_for('add_post') }}"
+                               style="color: #a5b4fc; text-decoration: none;">✏️ {{ t('add_post') }}</a></li>
+                        <li><a href="{{ url_for('logout') }}"
+                               style="color: #a5b4fc; text-decoration: none;">🚪 {{ t('logout') }}</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('login') }}"
+                               style="color: #a5b4fc; text-decoration: none;">🔑 {{ t('login') }}</a></li>
+                        <li><a href="{{ url_for('register') }}"
+                               style="color: #a5b4fc; text-decoration: none;">📝 {{ t('register') }}</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+
+        </div>
+
+        <hr style="border-color: #4f46e5; margin: 20px 0;">
+
+        <div class="text-center">
+            <p style="color: #6b7280; font-size: 0.85rem; margin: 0;">
+                © 2026 OpenNews — {{ t('all_rights_reserved') }}
+            </p>
+        </div>
+    </div>
+</footer>

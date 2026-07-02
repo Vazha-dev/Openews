@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card p-4">
+            <h3 class="mb-4 text-center" style="color: #22d3ee;">
+                {{ t("edit_post") }}
+            </h3>
+
+            <form method="POST">
+
+                <div class="mb-3">
+                    <label class="form-label">{{ t("title") }}</label>
+                    <input type="text"
+                           name="title"
+                           value="{{ post.title }}"
+                           class="form-control bg-dark text-light border-secondary"
+                           required>
+                </div>
+                <div class="mb-3 form-check">
+                    <input type="checkbox" name="is_nsfw" class="form-check-input" id="nsfw" {% if post.is_nsfw %}checked{% endif %}>
+                    <label class="form-check-label text-warning" for="nsfw">
+                        ⚠️ {{ t("nsfw_content") }}
+                    </label>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ t("youtube_video") }}</label>
+                    <input type="text" name="youtube_url"
+                        value="{{ post.youtube_url or '' }}"
+                        class="form-control bg-dark text-light border-secondary"
+                        placeholder="https://www.youtube.com/watch?v=...">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ t("category") }}</label>
+                    <select name="category" class="form-control bg-dark text-light border-secondary">
+                        <option value="ზოგადი" {% if post.category == 'ზოგადი' %}selected{% endif %}>{{ t("general") }}</option>
+                        <option value="სპორტი" {% if post.category == 'სპორტი' %}selected{% endif %}>{{ t("sports") }}</option>
+                        <option value="ტექნოლოგია" {% if post.category == 'ტექნოლოგია' %}selected{% endif %}>{{ t("technology") }}</option>
+                        <option value="პოლიტიკა" {% if post.category == 'პოლიტიკა' %}selected{% endif %}>{{ t("politics") }}</option>
+                        <option value="ბიზნესი" {% if post.category == 'ბიზნესი' %}selected{% endif %}>{{ t("business") }}</option>
+                        <option value="ჯანმრთელობა" {% if post.category == 'ჯანმრთელობა' %}selected{% endif %}>{{ t("health") }}</option>
+                        <option value="გართობა" {% if post.category == 'გართობა' %}selected{% endif %}>{{ t("entertainment") }}</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ t("content") }}</label>
+                    <textarea name="content"
+                              class="form-control bg-dark text-light border-secondary"
+                              rows="6"
+                              required>{{ post.content }}</textarea>
+                </div>
+
+                <button type="submit" class="btn btn-warning w-100">
+                    {{ t("update") }}
+                </button>
+
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

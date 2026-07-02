@@ -1,0 +1,50 @@
+<nav class="navbar navbar-expand-lg mb-4">
+    <div class="container">
+
+        <!-- ლოგო -->
+        <a class="navbar-brand" href="{{ url_for('index') }}">📰 {{ t('site_name') }}</a>
+
+        <!-- Hamburger menu მობილურისთვის -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Navbar კონტენტი -->
+        <div class="collapse navbar-collapse" id="navbarContent">
+
+            <!-- საძიებო ველი — შუაში -->
+            <form action="{{ url_for('search') }}" method="GET" class="d-flex mx-auto my-2 my-lg-0">
+                <input type="text" name="q"
+                       placeholder="{{ t('search_placeholder') }}"
+                       class="form-control form-control-sm bg-dark text-light border-secondary"
+                       style="width: 220px;">
+                <button type="submit" class="btn btn-sm btn-outline-info ms-2">{{ t('search') }}</button>
+            </form>
+
+            <!-- ნავიგაცია — მარჯვნივ -->
+            <div class="navbar-nav ms-auto align-items-lg-center">
+                {% if current_user.is_authenticated %}
+                    <a class="nav-link" href="{{ url_for('add_post') }}">{{ t('add_post') }}</a>
+                    <a class="nav-link" href="{{ url_for('profile') }}">👤 {{ current_user.username }}</a>
+                    <a class="nav-link" href="{{ url_for('logout') }}">{{ t('logout') }}</a>
+                {% else %}
+                    <a class="nav-link" href="{{ url_for('login') }}">{{ t('login') }}</a>
+                    <a class="nav-link" href="{{ url_for('register') }}">{{ t('register') }}</a>
+                {% endif %}
+
+                <!-- ენის switcher -->
+                <div class="d-flex gap-1 ms-lg-2">
+                    <a href="{{ url_for('set_language', lang='ka') }}"
+                       class="btn btn-sm {% if session.get('lang', 'ka') == 'ka' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+                        🇬🇪 QA
+                    </a>
+                    <a href="{{ url_for('set_language', lang='en') }}"
+                       class="btn btn-sm {% if session.get('lang') == 'en' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+                        🇬🇧 EN
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</nav>

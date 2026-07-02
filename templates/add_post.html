@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card p-4">
+            <h3 class="mb-4 text-center" style="color: #22d3ee;">{{ t("add_post") }}</h3>
+            <form method="POST" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label class="form-label">{{ t("title") }}</label>
+                    <input type="text" name="title"
+                           class="form-control bg-dark text-light border-secondary" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">{{ t("image") }} {{ t("optional") }}</label>
+                    <input type="file" name="image" 
+                        class="form-control bg-dark text-light border-secondary"
+                        accept="image/*">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">{{ t("youtube_video") }} {{ t("optional") }}</label>
+                    <input type="text" name="youtube_url"
+                        class="form-control bg-dark text-light border-secondary"
+                        placeholder="https://www.youtube.com/watch?v=...">
+                </div>
+                <div class="mb-3 form-check">
+                    <input type="checkbox" name="is_nsfw" class="form-check-input" id="nsfw">
+                    <label class="form-check-label text-warning" for="nsfw">
+                        ⚠️ {{ t("nsfw_warning") }}
+                    </label>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">{{ t("category") }}</label>
+                    <select name="category" class="form-control bg-dark text-light border-secondary">
+                        <option value="ზოგადი">{{ t("general") }}</option>
+                        <option value="სპორტი">{{ t("sports") }}</option>
+                        <option value="ტექნოლოგია">{{ t("technology") }}</option>
+                        <option value="პოლიტიკა">{{ t("politics") }}</option>
+                        <option value="გართობა">{{ t("entertainment") }}</option>
+                        <option value="ბიზნესი">{{ t("business") }}</option>
+                        <option value="ჯანმრთელობა">{{ t("health") }}</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">{{ t("content") }}</label>
+                    <textarea name="content"
+                              class="form-control bg-dark text-light border-secondary"
+                              rows="6"
+                              required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">{{ t("publish") }}</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
